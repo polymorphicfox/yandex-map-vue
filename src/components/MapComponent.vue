@@ -28,6 +28,9 @@
 </template>
 
 <script>
+    import ShopClusterParams from "../model/ShopClusterParams";
+    import ShopService from "../service/ShopService";
+
     export default {
         name: "map-component",
         created() {
@@ -52,6 +55,7 @@
 
                 this.leftBottom = map.getBounds()[0];
                 this.rightTop = map.getBounds()[1];
+                this.updateShops();
                 this.map = map;
             },
             addObjects() {
@@ -66,8 +70,35 @@
                 this.map.geoObjects.removeAll();
             },
             onSizeChange(e) {
-                this.leftBottom = e.get('oldBounds')[0];
-                this.rightTop = e.get('oldBounds')[1];
+                this.leftBottom = e.get('newBounds')[0];
+                this.rightTop = e.get('newBounds')[1];
+                this.updateShops()
+            },
+
+            updateShops() {
+                let params = new ShopClusterParams(
+                    this.leftBottom[0],
+                    this.leftBottom[1],
+                    this.rightTop[0],
+                    this.rightTop[1],
+                    null,
+                    null,
+                    null
+                );
+                ShopService.getShops(params)
+                    .then(response=>{
+                        console.log(response.shops);
+                        this.map.geoObjects.removeAll();
+                        response.shops.forEach(shop=>{
+                            let placemark= new ymaps.Placemark([shop.coordinates.lat, shop.coordinates.lon], {
+                                balloonContent: shop.id +", lat: " +shop.coordinates.lat +", lon: " +shop.coordinates.lon
+                            }, {
+                                preset: 'islands#icon',
+                                iconColor: '#0095b6'
+                            });
+                            this.map.geoObjects.add(placemark)
+                        })
+                    });
             }
         }
     }
