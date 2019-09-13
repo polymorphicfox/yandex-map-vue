@@ -87,7 +87,7 @@
                 );
                 ShopService.getShops(params)
                     .then(response=>{
-                        console.log(response.shops);
+                        console.log(response);
                         this.map.geoObjects.removeAll();
                         response.shops.forEach(shop=>{
                             let placemark= new ymaps.Placemark([shop.coordinates.lat, shop.coordinates.lon], {
@@ -97,8 +97,23 @@
                                 iconColor: '#0095b6'
                             });
                             this.map.geoObjects.add(placemark)
+                        });
+                        response.clusters.forEach(cluster=>{
+                            let placemark= new ymaps.Placemark([cluster.coordinates.lat, cluster.coordinates.lon], {
+                                iconCaption:cluster.shops.length,
+                                balloonContent: this.getClusterBaloonTex(cluster)
+                            }, {
+                                preset: 'islands#icon',
+                                iconColor: '#b62d2c'
+                            });
+                            this.map.geoObjects.add(placemark)
                         })
                     });
+            },
+            getClusterBaloonTex(cluster){
+                let text = "";
+                cluster.shops.forEach(shop=>{text = text+ shop.id +"<br/>"})
+                return text
             }
         }
     }
