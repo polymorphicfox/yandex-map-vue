@@ -21,6 +21,18 @@
                         label="Right top corner:">
                 </v-text-field>
             </v-flex>
+            <v-flex xs5>
+                <v-text-field
+                        v-model="selectedPoint"
+                        label="Selected point:">
+                </v-text-field>
+            </v-flex>
+            <v-flex xs1>
+                <v-text-field
+                        v-model="precision"
+                        label="Precision:">
+                </v-text-field>
+            </v-flex>
             <v-btn @click="addObjects">Add objects</v-btn>
             <v-btn @click="clear">Clear</v-btn>
         </v-layout>
@@ -40,6 +52,8 @@
             return {
                 leftBottom: null,
                 rightTop: null,
+                selectedPoint: [],
+                precision: 23,
                 map: {},
                 message: "There will be map",
             }
@@ -51,57 +65,66 @@
                     zoom: 7,
                 });
 
-                map.events.add('boundschange', this.onSizeChange);
+                map.events.add('boundschange', this.onBoundsChange);
 
                 this.leftBottom = map.getBounds()[0];
                 this.rightTop = map.getBounds()[1];
-                this.updateShops();
                 this.map = map;
+                this.updateShops();
             },
             addObjects() {
-                this.map.geoObjects.add(new ymaps.Placemark([55.8, 37.8], {
-                    balloonContent: 'Test'
-                }, {
-                    preset: 'islands#icon',
-                    iconColor: '#0095b6'
-                }))
+                console.log(this.map.zoomRange.getCurrent());
+
+                this.updateShops();
             },
             clear() {
                 this.map.geoObjects.removeAll();
             },
-            onSizeChange(e) {
+            onBoundsChange(e) {
                 this.leftBottom = e.get('newBounds')[0];
                 this.rightTop = e.get('newBounds')[1];
-                this.updateShops()
+                this.updateShops();
+                console.log(this.map.getZoom())
             },
 
             updateShops() {
+                // let params = new ShopClusterParams(
+                //     this.leftBottom[0],
+                //     this.leftBottom[1],
+                //     this.rightTop[0],
+                //     this.rightTop[1],
+                //     null,
+                //     null,
+                //     null
+                // );
                 let params = new ShopClusterParams(
-                    this.leftBottom[0],
-                    this.leftBottom[1],
                     this.rightTop[0],
+                    this.leftBottom[1],
+                    this.leftBottom[0],
                     this.rightTop[1],
+                    this.map.getZoom(),
                     null,
                     null,
                     null
                 );
+                console.log(params);
                 ShopService.getShops(params)
-                    .then(response=>{
+                    .then(response => {
                         console.log(response);
                         this.map.geoObjects.removeAll();
-                        response.shops.forEach(shop=>{
-                            let placemark= new ymaps.Placemark([shop.coordinates.lat, shop.coordinates.lon], {
-                                balloonContent: shop.id +", lat: " +shop.coordinates.lat +", lon: " +shop.coordinates.lon
+                        response.shops.forEach(shop => {
+                            let placemark = new ymaps.Placemark([shop.coordinates.lat, shop.coordinates.lon], {
+                                balloonContent: shop.id + ", lat: " + shop.coordinates.lat + ", lon: " + shop.coordinates.lon
                             }, {
                                 preset: 'islands#icon',
                                 iconColor: '#0095b6'
                             });
                             this.map.geoObjects.add(placemark)
                         });
-                        response.clusters.forEach(cluster=>{
-                            let placemark= new ymaps.Placemark([cluster.coordinates.lat, cluster.coordinates.lon], {
-                                iconCaption:cluster.shops.length,
-                                balloonContent: this.getClusterBaloonTex(cluster)
+                        response.clusters.forEach(cluster => {
+                            let placemark = new ymaps.Placemark([cluster.coordinates.lat, cluster.coordinates.lon], {
+                                iconCaption: cluster.shops_count,
+                                balloonContent: this.getClusterBalloonText(cluster)
                             }, {
                                 preset: 'islands#icon',
                                 iconColor: '#b62d2c'
@@ -110,9 +133,13 @@
                         })
                     });
             },
-            getClusterBaloonTex(cluster){
+            getClusterBalloonText(cluster) {
                 let text = "";
-                cluster.shops.forEach(shop=>{text = text+ shop.id +"<br/>"})
+                if (cluster.shops_count > 0) {
+                    cluster.shops.forEach(shopId => {
+                        text = text + shopId+ "<br/>"
+                    })
+                }
                 return text
             }
         }
