@@ -3,9 +3,15 @@
     <v-app-bar app>
       <v-btn
               text
-              to="/"
+              to="/yandex-map"
       >
-        <span class="mr-2">Map Example</span>
+        <span class="mr-2">Yandex Map Example</span>
+      </v-btn>
+      <v-btn
+              text
+              to="/google-map"
+      >
+        <span class="mr-2">Google Map Example</span>
       </v-btn>
       <v-btn
         text

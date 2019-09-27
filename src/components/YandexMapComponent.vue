@@ -44,7 +44,7 @@
     import ShopService from "../service/ShopService";
 
     export default {
-        name: "map-component",
+        name: "yandex-map-component",
         created() {
             ymaps.ready(this.initMap);
         },
