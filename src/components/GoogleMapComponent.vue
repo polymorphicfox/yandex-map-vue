@@ -62,9 +62,9 @@
             updateShops() {
                 let params = new ShopClusterParams(
                     this.map.getBounds().getNorthEast().lat(),
-                    this.map.getBounds().getSouthWest().lng(),
-                    this.map.getBounds().getSouthWest().lat(),
                     this.map.getBounds().getNorthEast().lng(),
+                    this.map.getBounds().getSouthWest().lat(),
+                    this.map.getBounds().getSouthWest().lng(),
                     this.map.getZoom(),
                     null,
                     null,

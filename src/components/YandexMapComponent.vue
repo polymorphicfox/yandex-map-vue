@@ -98,9 +98,9 @@
                 //     null
                 // );
                 let params = new ShopClusterParams(
-                    this.rightTop[0],
-                    this.leftBottom[1],
                     this.leftBottom[0],
+                    this.leftBottom[1],
+                    this.rightTop[0],
                     this.rightTop[1],
                     this.map.getZoom(),
                     null,
