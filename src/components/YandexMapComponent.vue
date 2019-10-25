@@ -122,12 +122,16 @@
                             this.map.geoObjects.add(placemark)
                         });
                         response.clusters.forEach(cluster => {
+                            let iconColor = '#b62d2c';
+                            if (!this.isClusterSeparable(cluster)) {
+                                iconColor = '#95b614';
+                            }
                             let placemark = new ymaps.Placemark([cluster.coordinates.lat, cluster.coordinates.lon], {
                                 iconCaption: cluster.shops_count,
                                 balloonContent: this.getClusterBalloonText(cluster)
                             }, {
                                 preset: 'islands#icon',
-                                iconColor: '#b62d2c'
+                                iconColor: iconColor
                             });
                             this.map.geoObjects.add(placemark)
                         })
@@ -135,12 +139,16 @@
             },
             getClusterBalloonText(cluster) {
                 let text = "";
-                if (cluster.shops_count > 0) {
+                if (!this.isClusterSeparable(cluster)) {
                     cluster.shops.forEach(shopId => {
-                        text = text + shopId+ "<br/>"
+                        text = text + shopId + "<br/>"
                     })
-                }
+                } else
+                    text = "Cluster is separable!"
                 return text
+            },
+            isClusterSeparable(cluster) {
+                return cluster.shops.length == 0
             }
         }
     }
