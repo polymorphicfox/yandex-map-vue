@@ -9,7 +9,11 @@
                         ref="map"
                         :center="center"
                         :zoom="7"
-
+                        :options="{
+                        streetViewControl: true,
+                         mapTypeControl: true,
+                         rotateControl: true
+                         }"
                         map-type-id="terrain"
                         style="width: auto; height: 500px"
                 >
@@ -30,11 +34,10 @@
 
             this.$refs.map.$mapPromise.then((map) => {
                 map.setMapTypeId('roadmap');
-                map.addListener('zoom_changed',this.onZoomChanged);
-                map.addListener('dragend',this.onDragend);
+                map.addListener('zoom_changed', this.onZoomChanged);
+                map.addListener('dragend', this.onDragend);
                 this.map = map;
             });
-            this.updateShops()
         },
         data() {
             return {
@@ -51,7 +54,7 @@
 
             },
 
-            onZoomChanged(){
+            onZoomChanged() {
                 console.log(this.map.getZoom());
                 this.updateShops()
             },
@@ -61,10 +64,10 @@
 
             updateShops() {
                 let params = new ShopClusterParams(
-                    this.map.getBounds().getNorthEast().lat(),
-                    this.map.getBounds().getNorthEast().lng(),
                     this.map.getBounds().getSouthWest().lat(),
                     this.map.getBounds().getSouthWest().lng(),
+                    this.map.getBounds().getNorthEast().lat(),
+                    this.map.getBounds().getNorthEast().lng(),
                     this.map.getZoom(),
                     null,
                     null,
@@ -99,7 +102,7 @@
                                 },
                                 map: this.map,
                                 label: {
-                                    text: ""+ cluster.shops_count,
+                                    text: "" + cluster.shops_count,
                                     color: "#ffff00",
                                     fontSize: "12px",
                                     fontWeight: "bold"
@@ -111,9 +114,9 @@
 
             },
 
-            clearMarkers(){
+            clearMarkers() {
                 this.markers.forEach(marker => {
-                   marker.setMap(null);
+                    marker.setMap(null);
                 });
                 this.markers.splice(0, this.markers.length)
             }
